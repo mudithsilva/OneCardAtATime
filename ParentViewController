@@ -1,0 +1,41 @@
+func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        var pageWidth:Float = Float(self.view.frame.size.width - 40.0 + 10.0) // Your cell Width + Min Spacing for Lines
+        
+        let currentOffSet:Float = Float(scrollView.contentOffset.x)
+        let targetOffSet:Float = Float(targetContentOffset.pointee.x)
+
+        var newTargetOffset:Float = 0
+
+        if(targetOffSet > currentOffSet) {
+            newTargetOffset = ((currentOffSet / pageWidth).rounded(.up) * (pageWidth))
+//            self.foucusedIndex = Int((currentOffSet / pageWidth).rounded(.up))
+        } else if(targetOffSet < currentOffSet) {
+            newTargetOffset = ((currentOffSet / pageWidth).rounded(.down) * (pageWidth))
+//            self.foucusedIndex = Int((currentOffSet / pageWidth).rounded(.down))
+        } else {
+            newTargetOffset = ((currentOffSet / pageWidth).rounded(.toNearestOrAwayFromZero) * (pageWidth))
+//            self.foucusedIndex = Int((currentOffSet / pageWidth).rounded(.toNearestOrAwayFromZero))
+        }
+
+        if(newTargetOffset < 0){
+            newTargetOffset = 0
+        } else if (newTargetOffset > Float(scrollView.contentSize.width)) {
+            newTargetOffset = Float(scrollView.contentSize.width)
+        }
+
+        targetContentOffset.pointee.x = CGFloat(currentOffSet)
+        scrollView.setContentOffset(CGPoint(x: Int(newTargetOffset), y: 0), animated: true)  // Show one Card
+ }
+ 
+ func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        var pageWidth:Float = Float(self.view.frame.size.width - 40.0 + 10.0) // Your cell Width + Min Spacing for Lines
+        
+        let currentOffSet:Float = Float(scrollView.contentOffset.x)
+        
+        if self.foucusedIndex != Int((currentOffSet / pageWidth).rounded(.toNearestOrAwayFromZero)) {
+            /// Detect Card Change
+            self.foucusedIndex = Int((currentOffSet / pageWidth).rounded(.toNearestOrAwayFromZero))
+            NotificationCenter.default.post(name: .didChangeActiveCard, object: nil, userInfo: ["activeView": self.foucusedIndex])
+        }
+        
+   }
